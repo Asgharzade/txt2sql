@@ -1,0 +1,18 @@
+[project]
+name = "txt2pdf"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "ipykernel>=6.29.5",
+    "langchain>=0.1.0",
+    "langchain-community>=0.3.21",
+    "langchain-openai>=0.0.2",
+    "openai>=1.10.0",
+    "pandas>=2.2.3",
+    "polars>=1.27.1",
+    "psycopg2-binary>=2.9.9",
+    "python-dotenv>=1.0.0",
+    "sqlalchemy>=2.0.23",
+]
