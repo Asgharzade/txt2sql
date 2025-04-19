@@ -18,7 +18,7 @@
 - Query result formatting and display
 - Basic documentation and usage instructions
 - Built with Python 3.8+
-- Uses GPT-4 model for natural language processing
+- Uses GPT-4o model for natural language processing
 - Implements LangChain framework for AI agent capabilities
 - PostgreSQL database connectivity
 - Environment variable management with python-dotenv

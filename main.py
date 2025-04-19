@@ -5,6 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.utilities import SQLDatabase
 from src.txt2sql_agent import Txt2SqlAgent
 from src.db_utils import test_connection, get_db_info, execute_sample_query
+import polars as pl
 load_dotenv()
 
 def load_environment():
@@ -91,8 +92,9 @@ def main():
                 try:
                     sample_data = execute_sample_query(db, table)
                     print(f"\nSample data from {table}:")
-                    for row in sample_data:
-                        print(row)
+                    print(pl.DataFrame(sample_data))
+                    # for row in sample_data:
+                    #     print(row)
                 except Exception as e:
                     print(f"Error retrieving sample data: {e}")
                 continue
@@ -133,6 +135,8 @@ def main():
                         print(f"Error: {result['error']}")
                     
                     print(f"\nQuery completed in {duration:.2f} seconds")
+                    print("-----------")
+                    print("/help  - Display this help message")
                 except Exception as e:
                     print(f"Error processing query: {e}")
     
