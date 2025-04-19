@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 *.env
+
+# Exclude environment files with secrets
+.env
