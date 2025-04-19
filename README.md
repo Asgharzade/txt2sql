@@ -81,7 +81,7 @@ python main.py
   Any other input will be treated as a natural language query to the database
 
 ## Project Structure
-
+```bash
 txt2sql/
 ├── main.py               # Main application entry point
 ├── src/                  # Source code directory
@@ -97,7 +97,7 @@ txt2sql/
 ├── pyproject.toml        # Python project configuration
 ├── .python-version       # Python version specification
 └── .gitignore            # Git ignore configuration
-
+```
 
 ## License
 MIT
