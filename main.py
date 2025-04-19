@@ -3,8 +3,8 @@ import time
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities import SQLDatabase
-from txt2sql_agent import Txt2SqlAgent
-from db_utils import test_connection, get_db_info, execute_sample_query
+from src.txt2sql_agent import Txt2SqlAgent
+from src.db_utils import test_connection, get_db_info, execute_sample_query
 load_dotenv()
 
 def load_environment():
