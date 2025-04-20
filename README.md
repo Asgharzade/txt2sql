@@ -71,12 +71,13 @@ python main.py
 
 ## Example Usage
 
-  /help           - Display this help message
-  /exit           - Exit the application
-  /tables         - List database tables
-  /sample TABLE   - Show sample data from a table
-  /sql            - Generate SQL without executing it
-  /explain QUERY  - Explain what a SQL query does
+1. `/help`              - Display this help message
+2. `/tables`            - List database tables
+3. `/sample customer`   - Show sample data from the customer table
+4. `/sample inventory`  - Show sample data from the inventory table
+5. `/sql list of working staff with their corresponding number of sales`         - Generate SQL without executing it
+6. `top 15 rented movies` - Run the query and get the results
+7. `/explain top 15 rented movies` - Explain what a SQL query does
 
   Any other input will be treated as a natural language query to the database
 
