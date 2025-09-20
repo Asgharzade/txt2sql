@@ -56,6 +56,9 @@ class Txt2SqlAgent:
         start_time = time.time()
         
         try:
+            # First generate the SQL to capture it
+            generated_sql = self.generate_sql_only(text_input)
+            
             # Run the agent to process the query
             result = self.agent.invoke({"input": text_input})
             
@@ -65,6 +68,7 @@ class Txt2SqlAgent:
             return {
                 "success": True,
                 "output": result["output"],
+                "sql": generated_sql,
                 "execution_time": execution_time,
                 "error": None
             }
@@ -73,6 +77,7 @@ class Txt2SqlAgent:
             return {
                 "success": False,
                 "output": None,
+                "sql": None,
                 "execution_time": execution_time,
                 "error": str(e)
             }
@@ -87,9 +92,15 @@ class Txt2SqlAgent:
         Returns:
             str: The generated SQL query
         """
+        # Get database schema information
+        schema_info = self.db.get_table_info()
+        
         prompt = PromptTemplate.from_template(
-            """Given the following user question, generate a syntactically correct PostgreSQL query.
-            Do not execute the query, just return it.
+            """Given the following user question and database schema, generate a syntactically correct PostgreSQL query.
+            Do not execute the query, just return the SQL query.
+            
+            Database schema:
+            {schema}
             
             User question: {question}
             
@@ -97,7 +108,7 @@ class Txt2SqlAgent:
         )
         
         chain = prompt | self.model | StrOutputParser()
-        return chain.invoke({"question": text_input})
+        return chain.invoke({"question": text_input, "schema": schema_info})
     
     def explain_query(self, sql_query: str) -> str:
         """

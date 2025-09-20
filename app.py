@@ -63,7 +63,34 @@ st.markdown("""
         border-radius: 0.5rem;
         border: 1px solid #bee5eb;
     }
+    textarea {
+        font-size: 1rem;
+    }
 </style>
+<script>
+    function addEnterKeyListener() {
+        setTimeout(function() {
+            const textarea = document.querySelector('textarea[data-testid="stTextArea"] textarea');
+            if (textarea && !textarea.hasAttribute('data-enter-listener')) {
+                textarea.setAttribute('data-enter-listener', 'true');
+                textarea.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        const sendButton = document.querySelector('button[kind="primary"]') || 
+                                         Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('Send'));
+                        if (sendButton) {
+                            sendButton.click();
+                        }
+                    }
+                });
+            }
+        }, 100);
+    }
+    
+    // Run on page load and rerun
+    document.addEventListener('DOMContentLoaded', addEnterKeyListener);
+    new MutationObserver(addEnterKeyListener).observe(document.body, { childList: true, subtree: true });
+</script>
 """, unsafe_allow_html=True)
 
 @st.cache_resource
@@ -127,7 +154,7 @@ def main():
             
             st.subheader("Available Tables")
             for table in db_info["tables"]:
-                if st.button(f"📋 {table}", key=f"table_{table}"):
+                if st.button(f"📋 {table}", key=f"table_{table}", use_container_width=True):
                     st.session_state.selected_table = table
             
             if "selected_table" in st.session_state:
@@ -149,45 +176,34 @@ def main():
     with col1:
         st.header("💬 Natural Language Query")
         
-        # Query input
+        # Query input with key for session state tracking
         query = st.text_area(
             "Enter your question in natural language:",
             placeholder="e.g., Show me all users who signed up in the last month",
-            height=100
+            height=100,
+            key="query_input"
         )
         
         # Query options
         col1_1, col1_2, col1_3 = st.columns(3)
         
         with col1_1:
-            execute_query = st.button("🚀 Execute Query", type="primary", use_container_width=True)
+            execute_query = st.button("🚀 Send", type="primary", use_container_width=True)
         
         with col1_2:
-            generate_sql_only = st.button("🔧 Generate SQL Only", use_container_width=True)
+            pass
         
         with col1_3:
-            explain_mode = st.button("📖 Explain Query", use_container_width=True)
+            pass
+        
+        # Check if Enter was pressed (workaround for Enter key)
+        if query and query != st.session_state.get("last_query", ""):
+            st.session_state.last_query = query
+            if "\n" not in query:  # Simple Enter without shift
+                execute_query = True
     
     with col2:
-        st.header("⚙️ Options")
-        
-        # Advanced options
-        st.subheader("Query Settings")
-        show_sql = st.checkbox("Show generated SQL", value=True)
-        show_execution_time = st.checkbox("Show execution time", value=True)
-        
-        st.subheader("Quick Examples")
-        examples = [
-            "Show me the top 10 customers by order value",
-            "Find all products with low stock (less than 10 units)",
-            "Calculate total sales by month for this year",
-            "List employees who joined in the last 6 months"
-        ]
-        
-        for example in examples:
-            if st.button(example, key=f"example_{example[:20]}"):
-                st.session_state.query_text = example
-                st.rerun()
+        pass
     
     # Handle query input from examples
     if "query_text" in st.session_state:
@@ -206,12 +222,16 @@ def main():
                     if result["success"]:
                         st.markdown('<div class="success-message">✅ Query executed successfully!</div>', unsafe_allow_html=True)
                         
+                        # Display generated SQL
+                        if "sql" in result and result["sql"]:
+                            st.subheader("🔧 Generated SQL")
+                            st.code(result["sql"], language="sql")
+                        
                         # Display results
                         st.subheader("📊 Results")
                         st.write(result["output"])
                         
-                        if show_execution_time:
-                            st.metric("Execution Time", f"{execution_time:.2f}s")
+                        st.metric("Execution Time", f"{execution_time:.2f}s")
                             
                     else:
                         st.markdown('<div class="error-message">❌ Query failed</div>', unsafe_allow_html=True)
@@ -219,48 +239,13 @@ def main():
                         
                 except Exception as e:
                     st.error(f"Error processing query: {e}")
-        
-        elif generate_sql_only:
-            with st.spinner("Generating SQL..."):
-                try:
-                    sql = agent.generate_sql_only(query)
-                    
-                    st.markdown('<div class="info-message">🔧 SQL Generated Successfully</div>', unsafe_allow_html=True)
-                    st.subheader("Generated SQL")
-                    
-                    # Use st.code for better SQL formatting
-                    st.code(sql, language="sql")
-                    
-                    # Add copy button functionality
-                    st.button("📋 Copy SQL", on_click=lambda: st.write("SQL copied to clipboard!"))
-                    
-                except Exception as e:
-                    st.error(f"Error generating SQL: {e}")
-        
-        elif explain_mode:
-            with st.spinner("Explaining query..."):
-                try:
-                    # First generate SQL
-                    sql = agent.generate_sql_only(query)
-                    
-                    st.subheader("Generated SQL")
-                    st.code(sql, language="sql")
-                    
-                    # Then explain it
-                    explanation = agent.explain_query(sql)
-                    
-                    st.subheader("📖 Explanation")
-                    st.markdown(explanation)
-                    
-                except Exception as e:
-                    st.error(f"Error explaining query: {e}")
     
     # Footer
     st.markdown("---")
     st.markdown(
         """
         <div style='text-align: center; color: #666;'>
-            <p>Built with ❤️ using Streamlit and LangChain</p>
+            <p>Built with Amin Asgharzadeh</p>
         </div>
         """,
         unsafe_allow_html=True
